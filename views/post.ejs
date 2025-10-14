@@ -1,0 +1,9 @@
+<% layout('layout') -%>
+<h2>New post</h2>
+<form method="post" action="/post">
+<!--     <input type="hidden" name="_csrf" value="<%= csrfToken %>"> -->
+
+    <label>Title <input name="title" /></label><br/>
+    <label>Body <textarea name="body"></textarea></label><br/>
+    <button type="submit">Create</button>
+</form>

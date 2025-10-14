@@ -1,0 +1,40 @@
+                                                VULNERABILITES DU SITE WEB
+
+
+Endpoints visités :
+
+Page d’accueil : http://127.0.0.1:4000/ -> affiche liste d’articles (titre + corps)
+Page login : http://127.0.0.1:4000/login -> champs username, password
+Page new post : http://127.0.0.1:4000/post -> champs title, body (textarea)
+Page search : http://127.0.0.1:4000/search?q= -> param q visible dans URL
+Lien dev repéré : http://127.0.0.1:4000/reset-db (reset DB)
+
+Fonctionnalités observées :
+ - Navigation
+ - POST usage d'un formulaire (titre, zone de texte, bouton d'envoie) -> endpoint POST pour l'envoie des données et GET pour faire afficher ces mêmes données
+ - Login usage d'un formulaire (pseudo -> input text / Password hashé + bouton de connexion) GET pour se connecter donc utilisation des données et POST pour la vérification des données dans la BDD
+ - Search (barre de recherche -> submit) GET pour l'affichage
+ - DB (Hard Delete - suppression définitve des données de la BDD) mais utilisation de l'endpoint GET
+
+Observations techniques :
+
+ Search utilise GET avec un param q visible dans l’URL.
+ Les posts que l’on soumet sont visibles ensuite sur la page d’accueil.
+ Aucun cookie de session visible après connexion (on n’a pas de session persistante visible).
+ Erreurs : aucune stack trace affichée à l’écran lors des actions testées.
+
+ Vulnérabilités CRITIQUE:
+
+ - Les mots de passe sont stockés en clair avec "password_plain" et authentification par concaténation de chaînes donc injection SQL c'est à dire si le méchant hacker écrit 1 = 1 la condition est toujours vraie nul besoin de renseigner un mot de passe. (Fichier app.js).
+ - Utilisation aussi d'une requête avec concaténation ce qui ouvre à l'injection SQL
+ - bcrypt a été installé mais pas utilisé donc ne sécurise pas le mot de passe et envoie en base donnée le mdp en clair
+
+  Vulnérabilités ELEVE:
+
+- Pas de protection contre la faille CSRF, pas de gestion de sessions sécurisée pour l'authentifcation utilisateur.
+- route /reset-db non-authentifiée, permet à n'importe qui de réinitialiser la base.
+- <%= %> utilisation des balises pour échapper cependant utilisation du tiret du 6 l'annulant donc permettant les failles XSS
+- Possibilité pour l'utilisateur d'effacer (reset) la base de donnée. Utilisation du hard delete, c'est à dire de la suppression
+  définitive des données personnelles sans message d'avertissement ou de confirmation (endpoint GET)/ Normalement devrait être un endpoint DELETE
+  Si utilisation du GET possible récupération des données au lieu de les supprimer.
+- Pas d’indication de limite lors d’essais de login

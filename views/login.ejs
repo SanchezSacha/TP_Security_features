@@ -1,0 +1,35 @@
+<% layout('layout') -%>
+<h2>Login</h2>
+
+<% if (message) { %>
+  <p><strong><%= message %></strong></p>
+<% } %>
+
+<form id="loginForm" method="post" action="/login">
+  <label>username <input name="username" /></label><br/>
+  <label>password <input name="password" type="password"/></label><br/>
+  <button id="loginBtn" type="submit">Login</button>
+</form>
+
+<% if (typeof blockedUntil !== 'undefined') { %>
+  <script>
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    let remaining = Math.floor((<%= blockedUntil %> - Date.now()) / 1000);
+    const p = document.createElement('p');
+    p.id = 'countdown';
+    p.textContent = `Vous pouvez réessayer dans ${remaining}s`;
+    document.body.appendChild(p);
+
+    const interval = setInterval(() => {
+      remaining--;
+      if (remaining > 0) {
+        p.textContent = `Vous pouvez réessayer dans ${remaining}s`;
+      } else {
+        clearInterval(interval);
+        btn.disabled = false;
+        p.textContent = 'Vous pouvez maintenant réessayer.';
+      }
+    }, 1000);
+  </script>
+<% } %>

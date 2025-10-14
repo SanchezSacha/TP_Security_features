@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Mini Blog - TP sécurité (VULN)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+    <h1>Mini-blog pédagogique <span style="color:orange">[VULNERABLE]</span></h1>
+    <nav>
+        <a href="/">Home</a> | <a href="/post">New Post</a> | <a href="/login">Login</a> | <a href="/search">Search</a> | <a href="/reset-db">Reset DB</a>
+    </nav>
+</header>
+<main>
+    <%- body %>
+</main>
+</body>
+</html>
