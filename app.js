@@ -16,6 +16,10 @@ const helmet = require('helmet');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 
+// Import des routes et middlewares
+const createAuthRoutes = require('./routes/authRoute');
+const { addUserToLocals, requireAuth } = require('./middlewares/baseAuth');
+
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -46,6 +50,7 @@ app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
     next();
 });
+app.use(addUserToLocals); // Ajouter les infos utilisateur aux variables locales
 app.use(helmet());
 
 app.use(helmet.contentSecurityPolicy({
@@ -85,6 +90,9 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     console.log("SQLite DB opened:", DB_PATH);
 });
 
+// Configuration des routes d'authentification
+app.use('/', createAuthRoutes(db));
+
 
 app.get('/', (req, res) => {
     db.all("SELECT id, title, body FROM posts ORDER BY id DESC LIMIT 50", [], (err, rows) => {
@@ -93,65 +101,11 @@ app.get('/', (req, res) => {
     });
 });
 
-const loginLimiter = rateLimit({
-    windowMs: 30 * 1000,
-    max: 3,
-    message: 'Trop de tentatives de connexion. Réessayez dans 30 secondes.',
-    standardHeaders: true,
-    legacyHeaders: false,
-    delayMs: 1000,
-    handler: (req, res, next, options) => {
-        const blockedUntil = Date.now() + 30 * 1000;
-        return res.status(429).render('login', {
-            message: options.message,
-            blockedUntil
-        });
-    }
-});
-
-app.get('/login', (req, res) => {
-    res.render('login', { message: null });
-});
-
-app.post('/login', loginLimiter, (req, res) => {
-    const username = req.body.username || '';
-    const password = req.body.password || '';
-    const q = 'SELECT id, username, password_plain, password_hash FROM users WHERE username = ? LIMIT 1';
-    db.get(q, [username], (err, row) => {
-        if (err) return res.status(500).send('DB error');
-        if (!row) return res.render('login', { message: 'Identifiants incorrects' });
-        const validPlain = row.password_plain && row.password_plain === password;
-        const validHash = row.password_hash && bcrypt.compareSync(password, row.password_hash);
-        if (validPlain || validHash) {
-            req.session.regenerate((err) => {
-                if (err) return res.status(500).send('Erreur de session');
-                req.session.user = {
-                    id: row.id,
-                    username: row.username
-                };
-                return res.send(`<h3>Connecté en tant que ${row.username}</h3>
-                              <a href="/logout">Se déconnecter</a>`);
-            });
-        } else {
-            return res.render('login', { message: 'Identifiants incorrects' });
-        }
-    });
-});
-
-app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) console.error('Erreur destruction session:', err);
-        res.clearCookie('sessionId');
-        res.redirect('/login');
-    });
-});
-
-
-app.get('/post', csrfProtection, (req, res) => {
+app.get('/post', requireAuth, csrfProtection, (req, res) => {
     res.render('post', { csrfToken: req.csrfToken() });
 });
 
-app.post('/post', csrfProtection, (req, res) => {
+app.post('/post', requireAuth, csrfProtection, (req, res) => {
     const title = req.body.title ? String(req.body.title).trim() : '';
     const body  = req.body.body ? xss(String(req.body.body)) : '';
     const sql = 'INSERT INTO posts (title, body) VALUES (?, ?)';
