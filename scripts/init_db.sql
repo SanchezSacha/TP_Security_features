@@ -3,14 +3,16 @@ DROP TABLE IF EXISTS posts;
 
 CREATE TABLE users (
    id INTEGER PRIMARY KEY AUTOINCREMENT,
-   username TEXT UNIQUE,
-   password_plain TEXT,
-   password_hash TEXT
+   username varchar(50) UNIQUE,
+   password_plain varchar(50),
+   password_hash TEXT,
+    description text,
+    avatar_url text
 );
 
 CREATE TABLE posts (
    id INTEGER PRIMARY KEY AUTOINCREMENT,
-   title TEXT,
+   title varchar(255),
    body TEXT
 );
 

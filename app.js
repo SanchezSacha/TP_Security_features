@@ -15,10 +15,14 @@ const app = express();
 const helmet = require('helmet');
 const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
+const profilRoutes = require('./routes/profilRoutes');
+
 
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+app.use('/', profilRoutes);
 
 app.use(session({
     name: 'sessionId',
