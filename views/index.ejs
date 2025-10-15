@@ -1,5 +1,12 @@
 <% layout('layout') -%>
 <h2>Articles récents</h2>
+
+<% if (!user) { %>
+    <div style="background-color: #f0f8ff; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px;">
+        <p><strong>Pour créer des articles, veuillez vous <a href="/login">connecter</a> ou vous <a href="/register">inscrire</a>.</strong></p>
+    </div>
+<% } %>
+
 <% if (posts.length === 0) { %>
     <p>Aucun post.</p>
 <% } else { %>

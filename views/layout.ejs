@@ -10,7 +10,21 @@
 <header>
     <h1>Mini-blog pédagogique <span style="color:orange">[VULNERABLE]</span></h1>
     <nav>
-        <a href="/">Home</a> | <a href="/post">New Post</a> | <a href="/login">Login</a> | <a href="/search">Search</a> | <a href="/reset-db">Reset DB</a>
+        <a href="/">Home</a> | 
+        <% if (user) { %>
+            <!-- Utilisateur connecté -->
+            <a href="/post">New Post</a> | 
+            <a href="/search">Search</a> | 
+            <a href="/reset-db">Reset DB</a> | 
+            <a href="/logout">Logout</a>
+            <span style="margin-left: 10px; color: green;">Connecté en tant que <%= user.username %></span>
+        <% } else { %>
+            <!-- Utilisateur non connecté -->
+            <a href="/login">Login</a> | 
+            <a href="/register">Register</a> | 
+            <a href="/search">Search</a> | 
+            <a href="/reset-db">Reset DB</a>
+        <% } %>
     </nav>
 </header>
 <main>
