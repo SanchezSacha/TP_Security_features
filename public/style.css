@@ -23,3 +23,13 @@ article {
 h1 {
     margin:0;
 }
+
+.container {
+    display: flex;             /* Aligne les éléments en ligne */
+    align-items: center;       /* Centre verticalement */
+}
+img {
+    width: 100px;
+    height: auto;
+    margin-right: 15px;
+}

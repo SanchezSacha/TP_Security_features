@@ -194,3 +194,7 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`VULNERABLE app listening on http://127.0.0.1:${PORT}`);
 });
+
+app.get('/profile', (req, res) => {
+    res.render('profile', { message: null });
+});
